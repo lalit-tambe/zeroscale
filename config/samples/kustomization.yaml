@@ -1,0 +1,4 @@
+## Append samples of your project ##
+resources:
+- zeroscale_v1alpha1_scalegate.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples

@@ -1,0 +1,32 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: manager-role
+rules:
+- apiGroups:
+  - zeroscale.zeroscale.dev
+  resources:
+  - scalegates
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - zeroscale.zeroscale.dev
+  resources:
+  - scalegates/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - zeroscale.zeroscale.dev
+  resources:
+  - scalegates/status
+  verbs:
+  - get
+  - patch
+  - update
