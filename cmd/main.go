@@ -37,6 +37,8 @@ import (
 
 	zeroscalev1alpha1 "github.com/lalit-tambe/zeroscale/api/v1alpha1"
 	"github.com/lalit-tambe/zeroscale/internal/controller"
+	"github.com/lalit-tambe/zeroscale/internal/interceptor"
+	"github.com/lalit-tambe/zeroscale/internal/shared"
 	// +kubebuilder:scaffold:imports
 )
 
@@ -178,9 +180,18 @@ func main() {
 		os.Exit(1)
 	}
 
+	stateManager := shared.NewStateManager()
+
+	proxy := interceptor.NewProxy(stateManager, mgr.GetClient())
+	if err := mgr.Add(proxy); err != nil {
+		setupLog.Error(err, "Failed to add interceptor proxy to manager")
+		os.Exit(1)
+	}
+
 	if err := (&controller.ScaleGateReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:       mgr.GetClient(),
+		Scheme:       mgr.GetScheme(),
+		StateManager: stateManager,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "Failed to create controller", "controller", "scalegate")
 		os.Exit(1)

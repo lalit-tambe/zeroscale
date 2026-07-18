@@ -68,6 +68,18 @@ type ScaleGateStatus struct {
 	// +listMapKey=type
 	// +optional
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
+
+	// CurrentReplicas is the actual number of replicas the target deployment currently has
+	// +optional
+	CurrentReplicas int32 `json:"currentReplicas"`
+
+	// LastRequestTime is the timestamp of the most recent request routed to this target
+	// +optional
+	LastRequestTime *metav1.Time `json:"lastRequestTime,omitempty"`
+
+	// State represents the current lifecycle state (Sleeping, WakingUp, Active)
+	// +optional
+	State string `json:"state,omitempty"`
 }
 
 // +kubebuilder:object:root=true
