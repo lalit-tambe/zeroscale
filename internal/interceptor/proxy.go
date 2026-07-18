@@ -136,13 +136,25 @@ func (p *Proxy) handleRequest(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// Add a slight delay to allow Kubernetes to propagate the Endpoint to kube-proxy
+		// This prevents "connection refused" if we proxy the exact millisecond ReadyReplicas > 0
+		time.Sleep(1500 * time.Millisecond)
+
 		ctrlLog.Info("Target is now ready, proceeding to proxy", "target", targetNN.String())
 	}
 
 	// 4. Proxy to actual service if replicas > 0
-	// Target URL inside Kubernetes: http://<service>.<namespace>.svc.cluster.local
+	// Target URL inside Kubernetes: http://<service>.<namespace>.svc.cluster.local:<port>
 	// Note: We assume the target Service name matches the target Deployment name for this v1
-	targetURLStr := fmt.Sprintf("http://%s.%s.svc.cluster.local", targetNN.Name, targetNN.Namespace)
+	port := r.URL.Query().Get("port")
+	if port == "" {
+		port = r.Header.Get("X-ScaleGate-Port")
+	}
+	if port == "" {
+		port = "80" // default HTTP port
+	}
+
+	targetURLStr := fmt.Sprintf("http://%s.%s.svc.cluster.local:%s", targetNN.Name, targetNN.Namespace, port)
 	targetURL, err := url.Parse(targetURLStr)
 	if err != nil {
 		http.Error(w, "Failed to parse target URL", http.StatusInternalServerError)
