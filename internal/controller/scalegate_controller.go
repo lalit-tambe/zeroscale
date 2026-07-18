@@ -82,6 +82,11 @@ func (r *ScaleGateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 
 	// Update interceptor knowledge
 	r.StateManager.SetCurrentReplicas(targetNN, readyReplicas)
+	bufferTimeout := time.Duration(sg.Spec.BufferTimeoutSeconds) * time.Second
+	if bufferTimeout == 0 {
+		bufferTimeout = 60 * time.Second
+	}
+	r.StateManager.SetBufferTimeout(targetNN, bufferTimeout)
 
 	// State logic
 	idleTimeout := time.Duration(sg.Spec.IdleTimeoutSeconds) * time.Second

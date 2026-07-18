@@ -39,6 +39,9 @@ spec:
           spec:
             description: spec defines the desired state of ScaleGate
             properties:
+              bufferTimeoutSeconds:
+                format: int32
+                type: integer
               idleTimeoutSeconds:
                 format: int32
                 type: integer
@@ -46,9 +49,6 @@ spec:
                 format: int64
                 type: integer
               maxQueueDepth:
-                format: int32
-                type: integer
-              maxWaitSeconds:
                 format: int32
                 type: integer
               minReplicas:

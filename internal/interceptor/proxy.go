@@ -106,10 +106,37 @@ func (p *Proxy) handleRequest(w http.ResponseWriter, r *http.Request) {
 			}
 		}()
 
-		// Phase 1: naive scale-up. Just return 503 instead of buffering.
-		w.Header().Set("Retry-After", "5") // tell client to retry in 5s
-		http.Error(w, "Service is currently waking up from zero replicas. Please retry.", http.StatusServiceUnavailable)
-		return
+		// Wait for pod to become ready
+		bufferTimeout := p.stateManager.GetBufferTimeout(targetNN)
+		ctrlLog.Info("Buffering request while waiting for target to wake up", "target", targetNN.String(), "timeout", bufferTimeout.String())
+
+		ctx, cancel := context.WithTimeout(r.Context(), bufferTimeout)
+		defer cancel()
+
+		ready := false
+		pollTicker := time.NewTicker(200 * time.Millisecond)
+		defer pollTicker.Stop()
+
+	WaitLoop:
+		for {
+			select {
+			case <-ctx.Done():
+				break WaitLoop
+			case <-pollTicker.C:
+				if p.stateManager.GetCurrentReplicas(targetNN) > 0 {
+					ready = true
+					break WaitLoop
+				}
+			}
+		}
+
+		if !ready {
+			ctrlLog.Error(ctx.Err(), "Timeout waiting for target to wake up", "target", targetNN.String())
+			http.Error(w, "Gateway Timeout: Service failed to start in time.", http.StatusGatewayTimeout)
+			return
+		}
+
+		ctrlLog.Info("Target is now ready, proceeding to proxy", "target", targetNN.String())
 	}
 
 	// 4. Proxy to actual service if replicas > 0

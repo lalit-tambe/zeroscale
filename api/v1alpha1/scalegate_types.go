@@ -38,7 +38,7 @@ type ScaleGateSpec struct {
 	MinReplicas          int32     `json:"minReplicas"`
 	ScaledReplicas       int32     `json:"scaledReplicas"`
 	MaxQueueDepth        int32     `json:"maxQueueDepth,omitempty"`
-	MaxWaitSeconds       int32     `json:"maxWaitSeconds,omitempty"`
+	BufferTimeoutSeconds int32     `json:"bufferTimeoutSeconds,omitempty"`
 	MaxBufferedBodyBytes int64     `json:"maxBufferedBodyBytes,omitempty"`
 }
 
