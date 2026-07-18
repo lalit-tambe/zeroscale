@@ -1,9 +1,12 @@
 apiVersion: zeroscale.zeroscale.dev/v1alpha1
 kind: ScaleGate
 metadata:
-  labels:
-    app.kubernetes.io/name: zeroscale
-    app.kubernetes.io/managed-by: kustomize
-  name: scalegate-sample
+  name: preview-api
+  namespace: staging
 spec:
-  # TODO(user): Add fields here
+  targetRef:
+    kind: Deployment
+    name: preview-api
+  idleTimeoutSeconds: 1800
+  minReplicas: 0
+  scaledReplicas: 1

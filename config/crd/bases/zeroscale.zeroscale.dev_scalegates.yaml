@@ -39,10 +39,40 @@ spec:
           spec:
             description: spec defines the desired state of ScaleGate
             properties:
-              foo:
+              idleTimeoutSeconds:
+                format: int32
+                type: integer
+              maxBufferedBodyBytes:
+                format: int64
+                type: integer
+              maxQueueDepth:
+                format: int32
+                type: integer
+              maxWaitSeconds:
+                format: int32
+                type: integer
+              minReplicas:
+                format: int32
+                type: integer
+              scaledReplicas:
+                format: int32
+                type: integer
+              targetRef:
                 description: foo is an example field of ScaleGate. Edit scalegate_types.go
                   to remove/update
-                type: string
+                properties:
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - kind
+                - name
+                type: object
+            required:
+            - idleTimeoutSeconds
+            - minReplicas
+            - scaledReplicas
             type: object
           status:
             description: status defines the observed state of ScaleGate

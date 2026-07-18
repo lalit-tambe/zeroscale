@@ -33,7 +33,18 @@ type ScaleGateSpec struct {
 
 	// foo is an example field of ScaleGate. Edit scalegate_types.go to remove/update
 	// +optional
-	Foo *string `json:"foo,omitempty"`
+	TargetRef            TargetRef `json:"targetRef"`
+	IdleTimeoutSeconds   int32     `json:"idleTimeoutSeconds"`
+	MinReplicas          int32     `json:"minReplicas"`
+	ScaledReplicas       int32     `json:"scaledReplicas"`
+	MaxQueueDepth        int32     `json:"maxQueueDepth,omitempty"`
+	MaxWaitSeconds       int32     `json:"maxWaitSeconds,omitempty"`
+	MaxBufferedBodyBytes int64     `json:"maxBufferedBodyBytes,omitempty"`
+}
+
+type TargetRef struct {
+	Kind string `json:"kind"`
+	Name string `json:"name"`
 }
 
 // ScaleGateStatus defines the observed state of ScaleGate.
