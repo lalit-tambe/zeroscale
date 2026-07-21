@@ -112,7 +112,7 @@ func (r *ScaleGateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		statusChanged = true
 	}
 
-	if lastReqTime.IsZero() == false && (sg.Status.LastRequestTime == nil || !sg.Status.LastRequestTime.Time.Equal(lastReqTime)) {
+	if !lastReqTime.IsZero() && (sg.Status.LastRequestTime == nil || !sg.Status.LastRequestTime.Time.Equal(lastReqTime)) {
 		t := metav1.NewTime(lastReqTime)
 		sg.Status.LastRequestTime = &t
 		statusChanged = true
@@ -137,10 +137,7 @@ func (r *ScaleGateReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	} else if currentReplicas == 0 && timeSinceLastReq <= idleTimeout {
 		// New Request -> Scale Up
 		logger.Info("New request detected. Scaling deployment up.", "deployment", targetNN.Name)
-		scaledReplicas := sg.Spec.ScaledReplicas
-		if scaledReplicas < 1 {
-			scaledReplicas = 1
-		}
+		scaledReplicas := max(int32(1), sg.Spec.ScaledReplicas)
 		deploy.Spec.Replicas = &scaledReplicas
 		if err := r.Update(ctx, deploy); err != nil {
 			logger.Error(err, "Failed to scale deployment up")

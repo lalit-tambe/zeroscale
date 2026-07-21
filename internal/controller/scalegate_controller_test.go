@@ -28,6 +28,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	zeroscalev1alpha1 "github.com/lalit-tambe/zeroscale/api/v1alpha1"
+	"github.com/lalit-tambe/zeroscale/internal/shared"
 )
 
 var _ = Describe("ScaleGate Controller", func() {
@@ -54,7 +55,16 @@ var _ = Describe("ScaleGate Controller", func() {
 						Name:      resourceName,
 						Namespace: resourceNamespace,
 					},
-					// TODO(user): Specify other spec details if needed.
+					Spec: zeroscalev1alpha1.ScaleGateSpec{
+						TargetRef: zeroscalev1alpha1.TargetRef{
+							Kind: "Deployment",
+							Name: "test-deployment",
+						},
+						IdleTimeoutSeconds:   60,
+						MinReplicas:          0,
+						ScaledReplicas:       1,
+						BufferTimeoutSeconds: 30,
+					},
 				}
 				Expect(k8sClient.Create(ctx, resource)).To(Succeed())
 			}
@@ -72,8 +82,9 @@ var _ = Describe("ScaleGate Controller", func() {
 		It("should successfully reconcile the resource", func() {
 			By("Reconciling the created resource")
 			controllerReconciler := &ScaleGateReconciler{
-				Client: k8sClient,
-				Scheme: k8sClient.Scheme(),
+				Client:       k8sClient,
+				Scheme:       k8sClient.Scheme(),
+				StateManager: shared.NewStateManager(),
 			}
 
 			_, err := controllerReconciler.Reconcile(ctx, reconcile.Request{

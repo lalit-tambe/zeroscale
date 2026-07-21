@@ -45,7 +45,7 @@ func (p *Proxy) Start(ctx context.Context) error {
 	go func() {
 		<-ctx.Done()
 		logger.Info("Shutting down interceptor proxy")
-		server.Close()
+		_ = server.Close()
 	}()
 
 	logger.Info("Starting interceptor proxy on :8082")
