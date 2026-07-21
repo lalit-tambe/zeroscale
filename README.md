@@ -1,8 +1,15 @@
-# zeroscale
-// TODO(user): Add simple overview of use/purpose
+# ZeroScale
+
+ZeroScale is a Kubernetes operator that provides Serverless-like scale-to-zero capabilities for standard Kubernetes Deployments. 
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+ZeroScale monitors HTTP traffic and automatically scales your Kubernetes Deployments down to zero replicas when idle, saving cluster resources. When a new request comes in, the ZeroScale proxy intercepts the request, buffers it, triggers a scale-up of the target deployment, and seamlessly forwards the traffic once the pod is ready.
+
+### Features
+- **ScaleGate CRD**: Define idle timeouts and buffer timeouts per Deployment.
+- **In-Memory State Manager**: Tracks request timestamps and replica counts to efficiently manage scaling.
+- **Zero-Downtime Buffering**: Holds incoming HTTP requests open while pods cold-start, avoiding 503 errors.
+- **In-Cluster Proxy**: Routes traffic dynamically to the proper internal Kubernetes Services once ready.
 
 ## Getting Started
 
@@ -111,7 +118,7 @@ previously added to 'dist/chart/values.yaml' or 'dist/chart/manager/manager.yaml
 is manually re-applied afterwards.
 
 ## Contributing
-// TODO(user): Add detailed information on how you would like others to contribute to this project
+// TODO
 
 **NOTE:** Run `make help` for more information on all potential `make` targets
 
